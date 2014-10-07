@@ -37,14 +37,13 @@ public class ManifestManager {
     }
 
     public String getManifest() {
-        String manifest = null;
         Object compressedManifest = manifestCache.get();
         if (compressedManifest == null) {
             return this.update();
         }
         if (compressedManifest instanceof String)
-            return manifest;
-        return new String((byte[]) compressedManifest);
+           return (String)compressedManifest;
+        return new String(gzipDecompress((byte[])compressedManifest));
     }
 
     private void cacheManifest(String manifest) {

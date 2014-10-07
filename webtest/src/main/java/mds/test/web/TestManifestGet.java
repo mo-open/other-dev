@@ -1,7 +1,7 @@
 package mds.test.web;
 
 import org.apache.commons.lang3.StringUtils;
-
+import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,10 +23,22 @@ public class TestManifestGet extends HttpServlet {
     private static ManifestManager manifestManager = ManifestManager.instance();
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String manifest = manifestManager.getManifest();
-        java.io.PrintWriter writer = resp.getWriter();
-        writer.write(manifest);
-        // writer.flush();
-    }
+    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+       final AsyncContext asyncContext = req.startAsync(req, resp);
+        asyncContext.start(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String manifest = manifestManager.getManifest();
+                    java.io.PrintWriter writer = resp.getWriter();
+                    writer.write(manifest);
+                    writer.flush();
+                    asyncContext.complete();
+                } catch (Exception ex) {
+
+                }
+            }
+        });
+    
+     }
 }
